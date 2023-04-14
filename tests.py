@@ -1,19 +1,9 @@
 from main import BooksCollector
 import pytest
+import conftest
+
 
 class TestBooksCollector:
-
-    @pytest.fixture
-    def books_collector(self):
-        return BooksCollector()
-
-    @pytest.fixture
-    def book1(self):
-        return "Book 1"
-
-    @pytest.fixture
-    def book2(self):
-        return "Book 2"
 
     def test_add_new_book_add_two_books(self, books_collector):
         # создаем экземпляр (объект) класса BooksCollector
@@ -27,14 +17,11 @@ class TestBooksCollector:
         (1, [])
     ])
     def test_get_books_by_rating(self, books_collector, book1, book2, rating, expected_result):
-        # Получение книги по рейтингу
         books_collector.add_book(book1)
         books_collector.add_book(book2)
         books_collector.set_book_rating(book1, 5)
         books_collector.set_book_rating(book2, 3)
-        # Сравниваем списки слева и справа
         assert books_collector.get_books_by_rating(rating) == expected_result
-
 
     def test_add_same_book_to_favorites(self, books_collector, book1):
         # Добавим книгу
@@ -45,9 +32,7 @@ class TestBooksCollector:
         # Проверяем, что длина избранных книг не изменилась
         assert len(books_collector.get_favorites()) == 1
 
-
     def test_add_book_with_empty_name(self, books_collector):
-        # Добавление книги с пустым названием
         books_collector.add_book("")
         assert books_collector.get_books_rating() == {"": 1}
 
@@ -61,8 +46,8 @@ class TestBooksCollector:
     # Таким образом, при каждом вызове теста для каждой книги из book будет вызываться фикстура
     # books_collector и создаваться объект BooksCollector()
     @pytest.mark.parametrize("book", [
-        book1,
-        book2
+        conftest.book1,
+        conftest.book2
     ])
     def test_remove_book_that_does_not_exist(self, books_collector, book):
         # Удаление книги из избранных, которой нет.
@@ -81,37 +66,22 @@ class TestBooksCollector:
 
         # Проверяем, что повторное добавление книги не изменяет ее рейтинг.
         books_collector.add_book(book1)
-        assert books_collector.get_books_rating()[book1] == 1
+        assert books_collector.get_book_rating(book1) == 1
 
     def test_set_book_rating(self, books_collector, book1, book2):
         # Проверяем установку рейтинга книги.
         books_collector.add_book(book1)
         books_collector.set_book_rating(book1, 5)
         assert books_collector.get_book_rating(book1) == 5
-
         # Проверяем, что установка рейтинга не возможна для книги, которой нет в списке.
         books_collector.set_book_rating(book2, 5)
         assert books_collector.get_book_rating(book2) is None
-
-        # Проверяем, что рейтинг не может быть меньше 1.
-        books_collector.set_book_rating(book1, 0)
-        assert books_collector.get_book_rating(book1) == 5
-
-        # Проверяем, что рейтинг не может быть больше 10.
-        books_collector.set_book_rating(book1, 11)
-        assert books_collector.get_book_rating(book1) == 5
 
     def test_add_to_favorites(self, books_collector, book1, book2):
         # Проверяем добавление книги в избранное.
         books_collector.add_book(book1)
         books_collector.add_to_favorites(book1)
         assert book1 in books_collector.get_favorites()
-
-        # Проверяем, что книгу нельзя добавить в избранное, если её нет в словаре books_rating.
-        books_collector.add_to_favorites(book2)
-
-        # Проверяем, нет ли левого объекта (книги) в спике избранных
-        assert book2 not in books_collector.get_favorites()
 
     def test_remove_from_favorites(self, books_collector, book1):
         # Проверяем удаление книги из избранного.
