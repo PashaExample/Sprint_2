@@ -57,4 +57,4 @@ class TestBooksCollector:
         books_collector.add_new_book(book1)
         books_collector.add_book_in_favorites(book1)
         books_collector.delete_book_from_favorites(book1)
-        assert len(books_collector.get_list_of_favorites_books()) == 0, 'Книга не удалена'
+        assert len(books_collector.get_list_of_favorites_books()) == 0, 'Книга не была удалена'
