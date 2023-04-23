@@ -1,75 +1,54 @@
-from main import BooksCollector
 import pytest
-import conftest
+
+book1 = 'Война и Мир'
+book2 = 'Мастер и Маргарита'
+books_with_ratings = {
+    book1: 6,
+    book2: 10,
+    'От заката до рассвета': 8
+}
 
 
 class TestBooksCollector:
 
-    def test_add_new_book_add_two_books(self, books_collector):
-        books_collector.add_book('Гордость и предубеждение и зомби')
-        books_collector.add_book('Что делать, если ваш кот хочет вас убить')
-        assert len(books_collector.get_books_rating()) == 2
+    def test_init_books_rating_type_is_dictionary(self, books_collector):
+        assert books_collector.get_books_rating() == {}, 'Тип рейтинга книг не является словарным'
 
-    @pytest.mark.parametrize("rating, expected_result", [
-        (5, ["Book 1"]),
-        (3, ["Book 2"]),
-        (1, [])
-    ])
-    def test_get_books_by_rating(self, books_collector, book1, book2, rating, expected_result):
-        books_collector.add_book(book1)
-        books_collector.add_book(book2)
-        books_collector.set_book_rating(book1, 5)
-        books_collector.set_book_rating(book2, 3)
-        assert books_collector.get_books_by_rating(rating) == expected_result
+    def test_init_favorites_type_is_list(self, books_collector):
+        assert books_collector.get_list_of_favorites_books() == [], 'Тип списка любимых книг - это не список'
 
-    def test_add_same_book_to_favorites(self, books_collector, book1):
-        books_collector.add_book(book1)
-        books_collector.add_to_favorites(book1)
-        books_collector.add_to_favorites(book1)
-        assert len(books_collector.get_favorites()) == 1
+    def test_add_new_book_add_two_books_count_books_two(self, books_collector):
+        books_collector.add_new_book(book1)
+        books_collector.add_new_book(book2)
+        assert len(books_collector.get_books_rating()) == 2, 'Книги не добавляются'
 
-    def test_add_book_with_empty_name(self, books_collector):
-        books_collector.add_book("")
-        assert books_collector.get_books_rating() == {"": 1}
+    def test_add_new_book_add_two_same_books_count_books_one(self, books_collector):
+        books_collector.add_new_book(book1)
+        books_collector.add_new_book(book1)
+        assert len(books_collector.get_books_rating()) == 1, 'Добавлены те же книги'
 
-    def test_add_book_with_special_characters(self, books_collector):
-        book_name = "C++ Programming for Beginners [Special Edition]\n"
-        books_collector.add_book(book_name)
-        assert book_name in books_collector.get_books_rating()
+    def test_set_book_rating_add_rating_to_nonexistent_book_rating_is_none(self, books_collector):
+        books_collector.set_book_rating(book1, 10)
+        assert books_collector.get_book_rating(book1) is None, 'Установлен рейтинг несуществующей книги'
 
-    @pytest.mark.parametrize("book", ["Book 1", "Book 2"])
+    @pytest.mark.parametrize('rating', [-2, 20])
+    def test_set_book_rating_add_new_book_with_out_of_range_one_to_ten_rating_rating_not_change(self, books_collector,
+                                                                                                rating):
+        books_collector.add_new_book(book1)
+        books_collector.set_book_rating(book1, rating)
+        assert books_collector.get_book_rating(book1) != rating, 'Рейтинг находится вне диапазона'
 
-    def test_remove_book_that_does_not_exist(self, books_collector, book):
-        books_collector.add_book(book)
-        books_collector.delete_book_from_favorites(book)
-        books_collector.set_book_rating(book, 5)
-        assert books_collector.get_books_rating() == {book: 5}
+    def test_get_book_rating_get_nonexistent_book_rating_rating_is_none(self, books_collector):
+        assert books_collector.get_book_rating(book1) is None, 'Рейтинг несуществующей книги равен получению'
 
-    def test_set_book_rating(self, books_collector, book2):
-        books_collector.add_book(book2)
-        books_collector.set_book_rating(book2, 5)
-        assert books_collector.get_book_rating(book2) is None
+    def test_add_book_in_favorites_add_new_book_book_in_favorites(self, books_collector):
+        books_collector.add_new_book(book1)
+        books_collector.add_book_in_favorites(book1)
+        assert book1 in books_collector.get_list_of_favorites_books(), 'Книга не добавлена в избранное'
 
-    def test_add_to_favorites(self, books_collector, book1, book2):
-        books_collector.add_book(book1)
-        books_collector.add_to_favorites(book1)
-        assert book1 in books_collector.get_favorites()
-
-    def test_delete_book_from_favorites(self, books_collector, book1):
-        books_collector.add_book(book1)
-        books_collector.add_to_favorites(book1)
-        books_collector.delete_book_from_favorites(book1)
-        assert book1 not in books_collector.get_favorites()
-
-    @pytest.mark.parametrize("book_name, expected_result", [
-        ("", {"": 1}),
-        ("C++ Programming for Beginners [Special Edition]\n", {"C++ Programming for Beginners [Special Edition]\n": 1})
-    ])
-    def test_add_book_with_special_cases(self, books_collector, book_name, expected_result):
-        books_collector.add_book(book_name)
-        assert books_collector.get_books_rating() == expected_result
-
-    def test_get_books_rating(self, books_collector, book1):
-        books_collector.add_book(book1)
-        books_collector.set_book_rating(book1, 5)
-        assert books_collector.get_books_rating() == {book1: 5}
+    def test_get_books_with_specific_rating_add_three_new_books_one_book_with_rating_more_than_eight(self,
+                                                                                                     books_collector):
+        for book, book_rating in books_with_ratings.items():
+            books_collector.add_new_book(book)
+            books_collector.set_book_rating(book, book_rating)
+        assert len(books_collector.get_books_with_specific_rating(10)) == 1, 'Ни одной книги с рейтингом более десяти'

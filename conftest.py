@@ -1,18 +1,8 @@
 import pytest
-
 from main import BooksCollector
 
 
 @pytest.fixture
-def books_collector():
+# (scope='function') - тут по умолчанию поэтому не писал в параметрах
+def collector():
     return BooksCollector()
-
-
-@pytest.fixture
-def book1():
-    return "Book 1"
-
-
-@pytest.fixture
-def book2():
-    return "Book 2"
