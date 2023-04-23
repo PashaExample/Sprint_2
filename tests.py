@@ -52,3 +52,9 @@ class TestBooksCollector:
             books_collector.add_new_book(book)
             books_collector.set_book_rating(book, book_rating)
         assert len(books_collector.get_books_with_specific_rating(10)) == 1, 'Ни одной книги с рейтингом более десяти'
+
+    def test_delete_book_from_favorites_add_new_book_to_favorites_count_of_books_is_zero(self, books_collector):
+        books_collector.add_new_book(book1)
+        books_collector.add_book_in_favorites(book1)
+        books_collector.delete_book_from_favorites(book1)
+        assert len(books_collector.get_list_of_favorites_books()) == 0, 'Книга не удалена'
