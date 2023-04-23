@@ -1,0 +1,3 @@
+[
+  "tests.py::TestBooksCollector::test_add_new_book_add_two_books"
+]
